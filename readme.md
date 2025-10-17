@@ -29,6 +29,44 @@ Payment API calls will require a `{hashed token}` to be passed as part of the re
 | Request Headers                     | `Content-Type: application/json;`              <br> `X-payzeni-apiauthz: {hashed token}` |                                             |
 | Request Body      | In JSON format. Attributes as described below.             |
 
+**_Request Body Attributes:_**
+|Attribute Name	| Required ? |Type	|Description
+|:----------------------------------- |:--- |:--- |:---------------------------------------------------------- |
+|orderId| Y	| String	| Your own transaction/order identifier |
+|amount	| Y | Numeric	| The requested amount to be paid by the customer |
+|customerEmail | Y	|String |	 The customer’s email address |
+|customerName	| Y | String	| The customer’s full name |
+|customerPhone | N |	String | The customer’s phone number |
+|paymentDesc |	Y | String	| A description of the payment|
+|callbackUrl	| N | String|	Your endpoint URL for receiving callbacks when the status of the transaction changes. If not specified, no callback will be made. |
+|dupCheck | N |	boolean	| When set to true, the system will reject a request if a transaction with the same orderId already exists. Defaults to false if not specified.|
+|sendEmail | N	| boolean	| When set to true, Interac will send an email to the customer with the payment link. Defaults to true if not specified. |
+
+**_Sample Request_**
+
+```
+{
+"customerEmail": "test@somedomain.com",
+"customerName": "Test Test",
+"orderId": "xyz123",
+"amount": 10.00,
+"paymentDesc": "Test interac e-transfer request"
+}
+```
+
+**_Response_**
+
+If the request fails authorization of validation, you will get an HTTP Status of 400 (Bad Request). The response body will contain an error code and an error message in a JSON-formatted text. For example:
+
+```
+{
+"msgCode": "E2012" ,
+"msgText": "Customer Name is required"
+}
+```
+
+If the request succeeds, you will get an HTTP Status of 200. The response body will contain the details of the transaction in JSON-formatted text with the following attributes:
+
 **_Response Attributes:_**
 
 |Attribute Name	|Type	|Description
@@ -44,11 +82,11 @@ Payment API calls will require a `{hashed token}` to be passed as part of the re
 |customerEmail	| String	| The customer’s email as specified in the request |
 |customerName	| String	| The customer’s full name as specified in the request|
 |customerPhone	| String	| The customer’s phone if specified in the request. Otherwise it will be null|
-|paymentLink	| String	| This is the URL that will take the customer to the Interac payment gateway page where this will select the financial institution from |which they will fulfill the request. You may display this link as the end-state of your payment flow or automatically redirect to it. If the “sendEmail” | attribute in the request is set to true, the customer would receive an email containing the same link.|
+|paymentLink	| String	| This is the URL that will take the customer to the Interac payment gateway page where this will select the financial institution from which they will fulfill the request. You may display this link as the end-state of your payment flow or automatically redirect to it. If the “sendEmail” attribute in the request is set to true, the customer would receive an email containing the same link.|
 |message	| String	|This is a message relating to the status of the transaction| 
 
 **_Sample Response_**
-
+```
 
     {
     "txnId": 2584206965130,
@@ -65,7 +103,7 @@ Payment API calls will require a `{hashed token}` to be passed as part of the re
     "customerPhone": null,
     "message": "Mock ETransfer Request Sent"
     }
-
+```
 
 **Callback**
 
@@ -84,6 +122,9 @@ This API call will require a **{hashed token}** to be passed as part of the requ
 
 * `apiKey`
 
+**_REQUEST CALL_**
+
+Set the hash value in the request header with a header name of “X-payzeni-apiauthz”.
 
 |Description |Query a payment request |
 |:---|:---|
